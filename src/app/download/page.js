@@ -11,7 +11,7 @@ export default function DownloadPage() {
     setMessage('Downloading...');
 
     try {
-      const res = await fetch('/api/download', {
+      const res = await fetch('https://daily-assistant-backend.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url, format }),

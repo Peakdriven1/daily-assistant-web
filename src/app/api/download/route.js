@@ -11,10 +11,13 @@ export async function POST(req) {
   }
 
   try {
-    const filePath = path.resolve(`temp_download.${format}`);
-    const args = format === 'mp3'
-      ? ['-x', '--audio-format', 'mp3', '-o', filePath, url]
-      : ['-f', 'mp4', '-o', filePath, url];
+    const filename = `download.${format}`;
+    const outputPath = path.resolve(filename);
+
+    const args =
+      format === 'mp3'
+        ? ['-x', '--audio-format', 'mp3', '-o', outputPath, url]
+        : ['-f', 'bestvideo+bestaudio', '--merge-output-format', 'mp4', '-o', outputPath, url];
 
     await new Promise((resolve, reject) => {
       const ytdlp = spawn('yt-dlp', args);
@@ -25,14 +28,14 @@ export async function POST(req) {
       });
     });
 
-    const fileBuffer = fs.readFileSync(filePath);
-    fs.unlinkSync(filePath); // clean up
+    const fileBuffer = fs.readFileSync(outputPath);
+    fs.unlinkSync(outputPath); // cleanup
 
     return new Response(fileBuffer, {
       status: 200,
       headers: {
         'Content-Type': format === 'mp3' ? 'audio/mpeg' : 'video/mp4',
-        'Content-Disposition': `attachment; filename="download.${format}"`,
+        'Content-Disposition': `attachment; filename="${filename}"`,
       },
     });
   } catch (err) {
